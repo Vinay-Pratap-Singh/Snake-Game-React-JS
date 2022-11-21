@@ -16,13 +16,11 @@ const GameBoard = () => {
   const [direction, setDirection] = useState({ x: 0, y: 0 });
 
   // getting the input of direction from the user
-  const userInput = (a) => {
-    let newDirection = undefined;
-
-    switch (a.key) {
+  const userInput = async (event) => {
+    switch (event.key) {
       case "ArrowUp":
         if (direction.x !== 1) {
-          newDirection = { ...direction };
+          let newDirection = { ...direction };
           newDirection.x = -1;
           newDirection.y = 0;
           setDirection(newDirection);
@@ -30,7 +28,7 @@ const GameBoard = () => {
         break;
       case "ArrowDown":
         if (direction.x !== -1) {
-          newDirection = { ...direction };
+          let newDirection = { ...direction };
           newDirection.x = 1;
           newDirection.y = 0;
           setDirection(newDirection);
@@ -38,7 +36,7 @@ const GameBoard = () => {
         break;
       case "ArrowLeft":
         if (direction.y !== 1) {
-          newDirection = { ...direction };
+          let newDirection = { ...direction };
           newDirection.y = -1;
           newDirection.x = 0;
           setDirection(newDirection);
@@ -46,7 +44,7 @@ const GameBoard = () => {
         break;
       case "ArrowRight":
         if (direction.y !== -1) {
-          newDirection = { ...direction };
+          let newDirection = { ...direction };
           newDirection.y = 1;
           newDirection.x = 0;
           setDirection(newDirection);
@@ -55,19 +53,29 @@ const GameBoard = () => {
     }
   };
 
-  // moving the snake
+  // for handling the user direction input
   useEffect(() => {
-    setInterval(() => {
-      let newone = [...snake];
-      newone[0].x += direction.x;
-      newone[0].y += direction.y;
-      setSnake(newone);
-     
+    window.addEventListener("keydown", userInput);
+
+    return () => {
+      window.removeEventListener("keydown", userInput);
+    };
+  }, [userInput]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      let newSnake = [...snake];
+      newSnake[0].x += direction.x;
+      newSnake[0].y += direction.y;
+      setSnake(newSnake);
     }, 1000);
-  }, [direction]);
+    return () => {
+      clearInterval(id);
+    };
+  }, [snake]);
 
   return (
-    <div onKeyDown={userInput} tabIndex="0" className="gameBoard">
+    <div className="gameBoard">
       <Snake body={snake[0]} />
       <Food food={food} />
     </div>
